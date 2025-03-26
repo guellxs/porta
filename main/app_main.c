@@ -86,9 +86,10 @@ void app_main(void)
     /////////////////////////////////////////////////////////////////////////////////////   Início do ramo principal                    
     char senha_correta[] = "1234"; // Senha definida
     char senha_digitada[5]; // Buffer para a senha digitada (4 dígitos + terminador nulo)
-    int posicao = 0;
-    int contador = 0;
-    int contadorerros = 0;
+    int posicao = 0; // posição do digito na senha
+    int contador = 0; //variavel de log
+    int contadorerros = 0; //variavel de erros
+    bool senha = false; //define a senha como não digitada no começo
 
     while (1)
     {
@@ -101,7 +102,7 @@ void app_main(void)
         while (posicao < 4)
         {
             tecla = le_teclado(); // Lê a tecla pressionada
-            if (tecla >= '0' && tecla <= '9' && contadorerros < 3)// Só aceita números
+            if (tecla >= '0' && tecla <= '9' && contadorerros < 4)// Só aceita números
             {
                 senha_digitada[posicao] = tecla; // Armazena o número
                 senha_digitada[posicao + 1] = '\0'; // Adiciona terminador nulo
@@ -110,20 +111,32 @@ void app_main(void)
                 vTaskDelay(200 / portTICK_PERIOD_MS);
             }
 
-            if (contadorerros == 3)
+            if (contadorerros == 3) //se errar 3 vezes seguidas
                 {
                 while(1)
-                escreve_lcd(1, 0, "Bloqueio por 3 erros");
+                escreve_lcd(1, 0, "Sistema Bloqueado");
                 escreve_lcd(2, 0, "Reinicie o ESP");
                 vTaskDelay(10 / portTICK_PERIOD_MS);
                 }
 
-            if (tecla == 'C')
+            if (tecla == 'C') //limpar a senha no "C"
             {
             posicao = 0;
             vTaskDelay(10 / portTICK_PERIOD_MS);
             }
-            
+
+            if (senha = false && fimdecurso = true) //se a senha não for digitada e o fim de curso acionado
+            { //entender funcionamento das entradas
+                limpar_lcd();
+                for(int i; i < 5; i++)
+                {
+                escreve_lcd(1, 0, "Arrombamento");
+                entradas = io_le_escreve(0b10000000);
+                vTaskDelay(1000 / portTICK_PERIOD_MS); 
+                entradas = io_le_escreve(0b00000000); 
+                vTaskDelay(1000 / portTICK_PERIOD_MS); 
+                }
+            }
         }
     
         vTaskDelay(200 / portTICK_PERIOD_MS); // Pequeno delay para evitar leitura dupla
@@ -131,6 +144,7 @@ void app_main(void)
         // Verifica se a senha está correta
         if (strcmp(senha_digitada, senha_correta) == 0)
         {
+            senha = true;
             limpar_lcd();
             escreve_lcd(1, 0, "Porta aberta!");
             entradas = io_le_escreve(0b00000001);
@@ -145,6 +159,7 @@ void app_main(void)
         }
         else
         {
+            senha = false;
             limpar_lcd();
             escreve_lcd(1, 0, "Senha errada!");
             vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -166,4 +181,3 @@ void app_main(void)
     /////////////////////////////////////////////////////////////////////////////////////   Fim do ramo principal
     
 }
-
